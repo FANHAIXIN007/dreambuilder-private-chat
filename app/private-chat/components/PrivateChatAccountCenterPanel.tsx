@@ -470,7 +470,7 @@ const MEMBERSHIP_MEDIA_RULES: Record<MembershipLevel, MembershipMediaRule> = {
     monthlyTrafficBytes: 1024 * 1024 * 1024,
     maxImageSizeBytes: 5 * 1024 * 1024,
     maxVideoSizeBytes: 50 * 1024 * 1024,
-    storageDesc: "适合日常私聊和暗语房间发送图片 / 短视频。",
+    storageDesc: "适合日常私聊和密室发送图片 / 短视频。",
   },
   svip: {
     level: "svip",
@@ -482,7 +482,7 @@ const MEMBERSHIP_MEDIA_RULES: Record<MembershipLevel, MembershipMediaRule> = {
     monthlyTrafficBytes: 10 * 1024 * 1024 * 1024,
     maxImageSizeBytes: 10 * 1024 * 1024,
     maxVideoSizeBytes: 200 * 1024 * 1024,
-    storageDesc: "适合高频私聊、暗语房间和更大视频文件。",
+    storageDesc: "适合高频私聊、密室和更大视频文件。",
   },
 };
 
@@ -651,14 +651,14 @@ function getMembershipStatusLabel(status?: MembershipStatus | null) {
 
 function getMembershipDesc(level?: MembershipLevel | null) {
   if (level === "svip") {
-    return "高级会员，适合重度使用私聊、暗语房、媒体房和更多收藏能力。";
+    return "高级会员，适合重度使用私聊、密室、媒体房和更多收藏能力。";
   }
 
   if (level === "vip") {
-    return "会员用户，适合更高频聊天、更多收藏房间和后续媒体额度扩展。";
+    return "会员用户，适合更高频聊天、更多收藏密室和后续媒体额度扩展。";
   }
 
-  return "普通用户，可使用基础聊天、私聊、暗语房、好友、黑名单和收藏房间。";
+  return "普通用户，可使用基础聊天、私聊、密室、好友、黑名单和收藏密室。";
 }
 
 function getMembershipBadgeClass(level?: MembershipLevel | null) {
@@ -1614,7 +1614,7 @@ const MEMBERSHIP_PLANS: MembershipPlan[] = [
     features: [
       "公共大厅文字聊天",
       "一对一文字私聊",
-      "暗语私密房间文字聊天",
+      "密室文字聊天",
       "基础好友管理",
       "基础黑名单",
       "不能发送图片 / 视频",
@@ -1630,7 +1630,7 @@ const MEMBERSHIP_PLANS: MembershipPlan[] = [
     features: [
       "包含普通会员全部能力",
       "私聊可发送图片 / 视频",
-      "暗语房可发送图片 / 视频",
+      "密室可发送图片 / 视频",
       "公共聊天室仅文字聊天",
       "月媒体流量 1GB",
       "可继续升级 SVIP",
@@ -1645,7 +1645,7 @@ const MEMBERSHIP_PLANS: MembershipPlan[] = [
     tone: "svip",
     features: [
       "包含 VIP 全部能力",
-      "私聊 / 暗语房更高媒体额度",
+      "私聊 / 密室更高媒体额度",
       "公共聊天室仍仅文字聊天",
       "月媒体流量 10GB",
       "更大视频文件上限",
@@ -2082,7 +2082,7 @@ export default function PrivateChatAccountCenterPanel() {
 
   async function handleRemoveRoomFavorite(roomId: string) {
     if (!chatUserId) {
-      setErrorText("缺少当前聊天身份，无法取消收藏房间。");
+      setErrorText("缺少当前聊天身份，无法取消收藏密室。");
       return;
     }
 
@@ -2099,10 +2099,10 @@ export default function PrivateChatAccountCenterPanel() {
 
       await refreshManagementLists(chatUserId);
 
-      setStatusText("已取消收藏房间。");
+      setStatusText("已取消收藏密室。");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "取消收藏房间失败。";
+        error instanceof Error ? error.message : "取消收藏密室失败。";
 
       setErrorText(message);
     } finally {
@@ -2126,7 +2126,7 @@ export default function PrivateChatAccountCenterPanel() {
 
   async function handleSaveRoomRemark(roomId: string, shouldClear = false) {
     if (!chatUserId) {
-      setErrorText("缺少当前聊天身份，无法修改房间备注。");
+      setErrorText("缺少当前聊天身份，无法修改密室备注。");
       return;
     }
 
@@ -2146,10 +2146,10 @@ export default function PrivateChatAccountCenterPanel() {
 
       setEditingRoomRemarkId(null);
       setRoomRemarkInput("");
-      setStatusText(shouldClear ? "已清除房间备注。" : "房间备注已保存。");
+      setStatusText(shouldClear ? "已清除密室备注。" : "密室备注已保存。");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "保存房间备注失败。";
+        error instanceof Error ? error.message : "保存密室备注失败。";
 
       setErrorText(message);
     } finally {
@@ -2944,7 +2944,7 @@ export default function PrivateChatAccountCenterPanel() {
     },
     {
       key: "rooms",
-      label: "房间",
+      label: "密室",
       count: savedRooms.length,
     },
   ];
@@ -3101,7 +3101,7 @@ export default function PrivateChatAccountCenterPanel() {
                 账户中心
               </h2>
               <p className="mt-1 text-sm leading-5 text-slate-400">
-                管理你的私密聊天身份、登录方式、好友关系、收藏房间、会员状态和管理员权限。
+                管理你的私密聊天身份、登录方式、好友关系、收藏密室、会员状态和管理员权限。
               </p>
             </div>
 
@@ -3226,7 +3226,7 @@ export default function PrivateChatAccountCenterPanel() {
                 </div>
               ) : (
                 <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/25 px-3 py-2 text-[11px] leading-5 text-slate-400">
-                  游客可以使用基础聊天能力。登录邮箱或钱包后，可以同步账户、保存好友、黑名单和收藏房间。
+                  游客可以使用基础聊天能力。登录邮箱或钱包后，可以同步账户、保存好友、黑名单和收藏密室。
                 </div>
               )}
             </div>
@@ -3280,9 +3280,9 @@ export default function PrivateChatAccountCenterPanel() {
               />
 
               <MiniInfoCard
-                label="收藏房间"
+                label="收藏密室"
                 value={stats.savedRooms}
-                desc="快速进入暗语房"
+                desc="快速进入密室"
               />
             </div>
           </SectionCard>
@@ -3339,7 +3339,7 @@ export default function PrivateChatAccountCenterPanel() {
                 }
                 desc={
                   activeMediaRule.canUploadMedia
-                    ? `私聊 / 暗语房可用，每月 ${formatBytes(
+                    ? `私聊 / 密室可用，每月 ${formatBytes(
                         activeMediaRule.monthlyTrafficBytes
                       )}`
                     : "普通会员仅支持文字聊天"
@@ -3459,8 +3459,8 @@ export default function PrivateChatAccountCenterPanel() {
         {isLoggedIn ? (
           <SectionCard
             eyebrow="Relationship & Rooms"
-            title="我的关系与房间"
-            desc="好友、黑名单和收藏房间统一管理。"
+            title="我的关系与密室"
+            desc="好友、黑名单和收藏密室统一管理。"
             right={
               <button
                 type="button"
@@ -3695,7 +3695,7 @@ export default function PrivateChatAccountCenterPanel() {
               {activeManageTab === "rooms" ? (
                 <div className="space-y-3">
                   {savedRooms.length === 0 ? (
-                    <EmptyState text="暂无收藏房间" />
+                    <EmptyState text="暂无收藏密室" />
                   ) : (
                     <>
                       <div
@@ -3711,7 +3711,7 @@ export default function PrivateChatAccountCenterPanel() {
                           const displayRoomName =
                             item.room_remark ||
                             item.room_name ||
-                            "暗语私密房间";
+                            "暗语密室";
 
                           return (
                             <div
@@ -3732,8 +3732,8 @@ export default function PrivateChatAccountCenterPanel() {
 
                                       {item.room_remark ? (
                                         <p className="mt-1 truncate text-[11px] text-slate-400">
-                                          原房间名：
-                                          {item.room_name || "暗语私密房间"}
+                                          原密室名：
+                                          {item.room_name || "暗语密室"}
                                         </p>
                                       ) : (
                                         <p className="mt-1 truncate text-[11px] text-slate-400">
@@ -3742,7 +3742,7 @@ export default function PrivateChatAccountCenterPanel() {
                                       )}
 
                                       <p className="mt-1 truncate text-[11px] text-slate-400">
-                                        房间 ID：
+                                        密室 ID：
                                         {shortenText(item.room_id, 10, 6)}
                                       </p>
                                     </div>
@@ -3764,7 +3764,7 @@ export default function PrivateChatAccountCenterPanel() {
                               {isEditingRemark ? (
                                 <div className="mt-3 rounded-3xl border border-white/10 bg-slate-950/24 p-3">
                                   <p className="text-[11px] text-slate-400">
-                                    给这个暗语房间设置备注名
+                                    给这个暗语密室设置备注名
                                   </p>
 
                                   <input
@@ -3775,7 +3775,7 @@ export default function PrivateChatAccountCenterPanel() {
                                       setErrorText("");
                                     }}
                                     maxLength={40}
-                                    placeholder="例如：老朋友房间、项目交流群、测试媒体房"
+                                    placeholder="例如：老朋友密室、项目交流群"
                                     className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/55 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-400 focus:border-cyan-300/50"
                                   />
 
@@ -3819,7 +3819,7 @@ export default function PrivateChatAccountCenterPanel() {
                                   href={buildSecretRoomHref(item.secret_code)}
                                   className="rounded-2xl bg-fuchsia-500 px-3 py-2 text-center text-[11px] font-semibold text-white transition hover:bg-fuchsia-400"
                                 >
-                                  进入房间
+                                  进入密室
                                 </Link>
 
                                 <button
@@ -3848,7 +3848,7 @@ export default function PrivateChatAccountCenterPanel() {
                         >
                           {isSavedRoomsExpanded
                             ? "收起列表"
-                            : `展开全部 ${savedRooms.length} 个收藏房间`}
+                            : `展开全部 ${savedRooms.length} 个收藏密室`}
                         </button>
                       ) : null}
                     </>
@@ -3860,8 +3860,8 @@ export default function PrivateChatAccountCenterPanel() {
         ) : (
           <SectionCard
             eyebrow="Relationship & Rooms"
-            title="我的关系与房间"
-            desc="登录后可以管理好友、黑名单和收藏房间。"
+            title="我的关系与密室"
+            desc="登录后可以管理好友、黑名单和收藏密室。"
           >
             <EmptyState text="当前是游客模式，登录后可同步和管理关系数据。" />
           </SectionCard>
@@ -4134,7 +4134,7 @@ export default function PrivateChatAccountCenterPanel() {
       <SectionCard
         eyebrow="Membership & Wallet"
         title="账户钱包与会员"
-        desc="会员系统独占一整行。当前支持套餐展示、USDT 钱包支付、链上自动检测到账和自动激活。"
+        desc="当前支持套餐展示、USDT 钱包支付、链上自动检测到账和自动激活。"
         badge={membershipLabel}
         tone="emerald"
       >
@@ -4212,7 +4212,7 @@ export default function PrivateChatAccountCenterPanel() {
             <div>
               <p className="text-base font-semibold text-white">会员权益限制</p>
               <p className="mt-1 text-[11px] leading-5 text-slate-400">
-                公共聊天室全部等级都只能发送文字；只有 VIP / SVIP 可以在一对一私聊和暗语私密房间发送图片 / 视频，并受每月媒体流量限制。
+                公共聊天室全部等级都只能发送文字；只有 VIP / SVIP 可以在一对一私聊和暗语密室发送图片 / 视频，并受每月媒体流量限制。
               </p>
             </div>
 
@@ -4247,7 +4247,7 @@ export default function PrivateChatAccountCenterPanel() {
             />
 
             <MiniInfoCard
-              label="暗语房媒体"
+              label="密室媒体"
               value={activeMediaRule.allowSecretRoomMedia ? "允许" : "禁止"}
               valueClassName={
                 activeMediaRule.allowSecretRoomMedia
@@ -4256,7 +4256,7 @@ export default function PrivateChatAccountCenterPanel() {
               }
               desc={
                 activeMediaRule.allowSecretRoomMedia
-                  ? "可在暗语私密房间发送图片 / 视频。"
+                  ? "可在暗语密室发送图片 / 视频。"
                   : "普通会员不能发送媒体文件。"
               }
             />
@@ -4305,7 +4305,7 @@ export default function PrivateChatAccountCenterPanel() {
                 <div className="mt-3 space-y-1.5 text-[11px] leading-5 text-slate-400">
                   <p>公共大厅：仅文字</p>
                   <p>
-                    私聊 / 暗语房媒体：
+                    私聊 / 密室媒体：
                     {rule.canUploadMedia ? "允许" : "禁止"}
                   </p>
                   <p>
@@ -4590,7 +4590,7 @@ export default function PrivateChatAccountCenterPanel() {
             <SectionCard
         eyebrow="Progress"
         title="当前进度与下一步"
-        desc="账户中心只保留一组最新说明，避免底部内容重复。"
+        desc="我们正在努力开发，不断完善使用体验。"
       >
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-3xl border border-emerald-400/20 bg-emerald-500/[0.06] p-3">
@@ -4598,7 +4598,7 @@ export default function PrivateChatAccountCenterPanel() {
               已完成
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              邮箱登录、钱包登录、账户同步、好友备注、房间备注、黑名单、收藏房间、管理员系统、owner
+              邮箱登录、钱包登录、账户同步、好友备注、密室备注、黑名单、收藏密室、管理员系统、owner
               平台统计、VIP / SVIP 套餐、真实 USDT 支付订单、链上到账检测、会员自动激活、会员到期降级、月度流量重置、后端上传权限校验、上传流量扣减、发送消息安全加固和清空消息权限控制。
             </p>
           </div>
@@ -4608,7 +4608,7 @@ export default function PrivateChatAccountCenterPanel() {
               下一步
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              继续完善支付宝 / 微信支付、微信登录、订单管理页面、个人流量面板、专属私密房、房主权限、高级隐私设置、账户安全与找回机制，并在正式上线前继续强化服务端身份校验和 Supabase RLS 策略。
+              继续完善支付宝 / 微信支付、微信登录、订单管理页面、个人流量面板、专属密室、房主权限、高级隐私设置、账户安全与找回机制，并在正式上线前继续强化服务端身份校验和 Supabase RLS 策略。
             </p>
           </div>
         </div>

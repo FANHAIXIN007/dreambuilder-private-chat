@@ -1142,7 +1142,7 @@ export default function PrivateChatLobbyPage() {
  if (result.timedOut) {
  console.warn("Load public messages timeout");
  setErrorText(
- "公共聊天室连接较慢，可以刷新页面重试，或直接点击私密入口进入房间。"
+ "公共聊天室连接较慢，可以刷新页面重试，或直接点击密室暗语房间。"
  );
  setIsLoading(false);
  return;
@@ -1164,7 +1164,7 @@ export default function PrivateChatLobbyPage() {
  if (!mounted) return;
 
  console.error("Load public messages exception:", error);
- setErrorText("公共聊天室连接异常，可以刷新页面重试，或直接进入私密房间。");
+ setErrorText("公共聊天室连接异常，可以刷新页面重试，或直接进入密室。");
  setIsLoading(false);
  }
  }
@@ -2339,76 +2339,6 @@ export default function PrivateChatLobbyPage() {
  </div>
  </div>
 
- <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
- <div className="mb-2 flex items-center justify-between">
- <p className="text-xs font-semibold text-white">最近 7 天访问曲线</p>
- <span className="text-[10px] text-slate-500">PV / UV</span>
- </div>
-
- {dailyTrafficSeries.length === 0 ? (
- <p className="text-[11px] text-slate-500">暂无最近 7 天访问数据。</p>
- ) : (
- <div className="space-y-2">
- {dailyTrafficSeries.map((item, index) => {
- const pv = getTrafficPointPv(item);
- const uv = getTrafficPointUv(item);
- const percent = Math.max(4, Math.min(100, (pv / maxDailyPv) * 100));
-
- return (
- <div key={(item.label || item.date || String(index)) + "-daily"}>
- <div className="mb-1 flex justify-between gap-2 text-[10px] text-slate-400">
- <span>{item.label || item.date || "日期"}</span>
- <span>PV {formatStatNumber(pv)} · UV {formatStatNumber(uv)}</span>
- </div>
- <div className="h-2 overflow-hidden rounded-full bg-white/10">
- <div
- className="h-full rounded-full bg-cyan-300"
- style={{ width: percent + "%" }}
- />
- </div>
- </div>
- );
- })}
- </div>
- )}
- </div>
-
- <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
- <div className="mb-2 flex items-center justify-between">
- <p className="text-xs font-semibold text-white">最近 24 小时访问</p>
- <span className="text-[10px] text-slate-500">按小时</span>
- </div>
-
- {hourlyTrafficSeries.length === 0 ? (
- <p className="text-[11px] text-slate-500">暂无最近 24 小时访问数据。</p>
- ) : (
- <div className="flex h-24 items-end gap-1">
- {hourlyTrafficSeries.slice(-24).map((item, index) => {
- const pv = getTrafficPointPv(item);
- const percent = Math.max(4, Math.min(100, (pv / maxHourlyPv) * 100));
-
- return (
- <div
- key={(item.label || item.hour || String(index)) + "-hourly"}
- className="flex min-w-0 flex-1 flex-col items-center gap-1"
- title={(item.label || item.hour || "小时") + " · PV " + pv}
- >
- <div className="flex w-full items-end rounded-full bg-white/10" style={{ height: "72px" }}>
- <div
- className="w-full rounded-full bg-fuchsia-300"
- style={{ height: percent + "%" }}
- />
- </div>
- <span className="max-w-full truncate text-[9px] text-slate-500">
- {item.label || item.hour || index}
- </span>
- </div>
- );
- })}
- </div>
- )}
- </div>
-
  <div className={"rounded-2xl border p-3 " + storageUsageStatus.bgClass}>
  <div className="mb-2 flex items-center justify-between gap-2">
  <p className="text-xs font-semibold text-white">媒体存储 / 流量</p>
@@ -2450,44 +2380,6 @@ export default function PrivateChatLobbyPage() {
  媒体 {formatStatNumber(adminStats.media.mediaMessageCount)} 条
  </p>
  </div>
- </div>
-
- <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
- <p className="mb-2 text-xs font-semibold text-white">访问来源</p>
- {sourceTrafficStats.length === 0 ? (
- <p className="text-[11px] text-slate-500">暂无来源数据。</p>
- ) : (
- <div className="space-y-1">
- {sourceTrafficStats.slice(0, 5).map((item, index) => (
- <div
- key={getTrafficItemLabel(item) + index}
- className="flex items-center justify-between gap-2 text-[11px] text-slate-300"
- >
- <span className="truncate">{getTrafficItemLabel(item)}</span>
- <span className="shrink-0 text-slate-500">{formatStatNumber(getTrafficItemCount(item))}</span>
- </div>
- ))}
- </div>
- )}
- </div>
-
- <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
- <p className="mb-2 text-xs font-semibold text-white">热门路径</p>
- {pathTrafficStats.length === 0 ? (
- <p className="text-[11px] text-slate-500">暂无路径数据。</p>
- ) : (
- <div className="space-y-1">
- {pathTrafficStats.slice(0, 5).map((item, index) => (
- <div
- key={getTrafficItemLabel(item) + index}
- className="flex items-center justify-between gap-2 text-[11px] text-slate-300"
- >
- <span className="truncate">{getTrafficItemLabel(item)}</span>
- <span className="shrink-0 text-slate-500">{formatStatNumber(getTrafficItemCount(item))}</span>
- </div>
- ))}
- </div>
- )}
  </div>
  </div>
  )}
@@ -2886,11 +2778,11 @@ export default function PrivateChatLobbyPage() {
  href="/private-chat/account"
  className="mt-3 block w-full rounded-2xl bg-fuchsia-500 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-fuchsia-400"
  >
- 进入统一账号中心
+ 进入账户中心
  </Link>
 
  <p className="mt-2 text-[11px] leading-5 text-slate-500">
- 账号管理、钱包绑定、退出账号、好友/黑名单/收藏统计已统一移动到账号中心。这里仅保留快捷修改昵称和头像。
+ 账号管理、钱包绑定、退出账号、好友/黑名单/收藏统计已统一移动到账户中心。这里仅保留快捷修改昵称和头像。
  </p>
 
  {publicChatPaused ? (
@@ -2971,7 +2863,7 @@ export default function PrivateChatLobbyPage() {
 
  <div className="mt-4 rounded-3xl border border-cyan-300/20 bg-cyan-400/10 p-4">
  <div className="mb-3 flex items-center justify-between">
- <h3 className="text-sm font-semibold text-cyan-50">我的私密房间</h3>
+ <h3 className="text-sm font-semibold text-cyan-50">我的密室</h3>
  <span className="rounded-full bg-cyan-400/10 px-2 py-1 text-xs text-cyan-100">
  {roomFavorites.length} 个
  </span>
@@ -2986,7 +2878,7 @@ export default function PrivateChatLobbyPage() {
  <div className="space-y-2">
  {roomFavorites.length === 0 ? (
  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-5 text-cyan-100/70">
- 暂无收藏房间。进入暗语私密房间后，点击“收藏房间”即可保存到这里。
+ 暂无收藏房间。进入暗语密室后，点击“收藏房间”即可保存到这里。
  </div>
  ) : (
  roomFavorites.map((room) => (
@@ -3008,7 +2900,7 @@ export default function PrivateChatLobbyPage() {
 
  <span className="min-w-0 flex-1">
  <span className="block truncate text-sm font-medium text-white">
- {room.room_name || "暗语私密房间"}
+ {room.room_name || "暗语密室"}
  </span>
  <span className="block truncate text-xs text-cyan-100/70">
  点击直接进入 · {room.secret_code}
@@ -3021,7 +2913,7 @@ export default function PrivateChatLobbyPage() {
  onClick={() =>
  handleRemoveRoomFavorite(
  room.room_id,
- room.room_name || "暗语私密房间"
+ room.room_name || "暗语密室"
  )
  }
  disabled={isRoomFavoriteActionLoading}
@@ -3102,7 +2994,7 @@ export default function PrivateChatLobbyPage() {
  </span>
  <span className="block truncate text-xs text-emerald-300/80">
  {isMe
- ? "点击进入私密入口"
+ ? "点击进入密室"
  : isBlockedByMe
  ? "已拉黑 · 可取消拉黑"
  : isFriendByMe
@@ -3311,7 +3203,7 @@ export default function PrivateChatLobbyPage() {
  onClick={handleOpenSecretDialog}
  className="rounded-2xl bg-fuchsia-500/20 px-3 py-2 text-xs font-medium text-fuchsia-100 transition hover:bg-fuchsia-500/30"
  >
- 私密入口
+ 密室
  </button>
  </div>
  }
@@ -3355,7 +3247,7 @@ export default function PrivateChatLobbyPage() {
  公共大厅暂无消息
  </h2>
  <p className="mt-2 text-sm leading-6 text-slate-400">
- 你可以直接发第一条消息。也可以点击“私密入口”，输入暗语进入约定房间。
+ 你可以直接发第一条消息。也可以点击“密室”，输入暗语进入约定密室。
  </p>
  </div>
  </div>
@@ -3528,16 +3420,9 @@ export default function PrivateChatLobbyPage() {
  ? "公共聊天室已暂停发言"
  : !isAdmin && publicChatCooldownSeconds > 0
  ? `当前发言间隔：${publicChatCooldownSeconds} 秒`
- : "点击头像私聊，或点击私密入口进入暗语房间"}
+ : "点击头像私聊，或点击密室进入暗语房间"}
  </span>
 
- <button
- type="button"
- onClick={handleOpenSecretDialog}
- className="text-fuchsia-200 underline decoration-white/20 underline-offset-4 transition hover:text-white"
- >
- 私密入口
- </button>
  </div>
  </div>
  </section>
@@ -3568,10 +3453,10 @@ export default function PrivateChatLobbyPage() {
  <div className="mb-4 flex items-start justify-between gap-3">
  <div>
  <h2 className="text-lg font-semibold text-white">
- 进入私密房间
+ 进入密室
  </h2>
  <p className="mt-1 text-sm leading-6 text-slate-400">
- 输入你和对方约定好的暗语或密码。多人输入完全相同内容，会进入同一个私密房间。
+ 输入你和对方约定好的暗语或密码。多人输入完全相同内容，会进入同一个密室。
  </p>
  </div>
 
@@ -3599,7 +3484,7 @@ export default function PrivateChatLobbyPage() {
  onKeyDown={handleSecretCodeKeyDown}
  maxLength={32}
  autoFocus
- placeholder="例如：葡萄牙晚霞、lisbon520、我们的暗号"
+ placeholder="例如：天王盖地虎、nishi250、我们的暗号"
  className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-fuchsia-400/50"
  />
 
@@ -3607,7 +3492,7 @@ export default function PrivateChatLobbyPage() {
  <p className="mt-2 text-xs text-rose-300">{secretError}</p>
  ) : (
  <p className="mt-2 text-xs leading-5 text-slate-500">
- 暗语不会显示在公共聊天室里，只用于生成对应的多人私密房间。
+ 暗语不会显示在公共聊天室里，只用于生成对应的多人密室。
  </p>
  )}
  </div>
@@ -3626,7 +3511,7 @@ export default function PrivateChatLobbyPage() {
  onClick={handleEnterSecretRoom}
  className="flex-1 rounded-2xl bg-fuchsia-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-400"
  >
- 进入房间
+ 进入密室
  </button>
  </div>
  </div>
