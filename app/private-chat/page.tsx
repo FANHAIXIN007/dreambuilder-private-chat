@@ -3289,6 +3289,7 @@ export default function PrivateChatLobbyPage() {
 
  return (
  <PrivateChatShell
+ onMobileTitleClick={() => setMobileInfoOpen(true)}
  title="公共聊天室"
  subtitle={`无需注册，打开就能聊。当前在线 ${onlineUsers.length} 人。`}
  rightSlot={

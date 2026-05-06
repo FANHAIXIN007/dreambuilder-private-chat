@@ -7,6 +7,7 @@ type PrivateChatShellProps = {
  title: string;
  subtitle?: string;
  rightSlot?: ReactNode;
+ onMobileTitleClick?: () => void;
  children: ReactNode;
 };
 
@@ -14,6 +15,7 @@ export default function PrivateChatShell({
  title,
  subtitle,
  rightSlot,
+ onMobileTitleClick,
  children,
 }: PrivateChatShellProps) {
  return (
@@ -27,9 +29,20 @@ export default function PrivateChatShell({
  </div>
 
  <div className="min-w-0">
+ {onMobileTitleClick ? (
+ <button
+  type="button"
+  onClick={onMobileTitleClick}
+  className="block max-w-full truncate text-left text-xl font-semibold tracking-tight text-white transition hover:text-fuchsia-100 active:text-fuchsia-200 sm:text-2xl lg:pointer-events-none"
+  title="打开大厅信息"
+ >
+  {title}
+ </button>
+) : (
  <h1 className="truncate text-xl font-semibold tracking-tight text-white sm:text-2xl">
- {title}
+  {title}
  </h1>
+)}
 
  {subtitle ? (
  <p className="mt-1 truncate text-xs leading-5 text-slate-400 sm:text-sm">
