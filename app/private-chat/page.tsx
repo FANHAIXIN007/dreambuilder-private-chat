@@ -3543,13 +3543,7 @@ export default function PrivateChatLobbyPage() {
  </section>
 
  
-      <button
-        type="button"
-        onClick={() => setMobileInfoOpen(true)}
-        className="mobile-lobby-info-floating-button-v1 fixed bottom-24 right-4 z-40 rounded-full border border-white/10 bg-fuchsia-500 px-4 py-3 text-xs font-semibold text-white shadow-[0_18px_50px_rgba(217,70,239,0.35)] transition hover:bg-fuchsia-400 lg:hidden"
-      >
-        大厅信息
-      </button>
+      
 
 {mobileInfoOpen ? (
  <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden">
