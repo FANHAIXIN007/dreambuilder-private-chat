@@ -707,21 +707,29 @@ async function getSiteTrafficStats() {
  const weekStart = getStartOfCurrentWeekIso();
  const monthStart = getStartOfCurrentMonthIso();
  const sevenDaysStart = getIsoDaysAgo(6);
+ const thirtyDaysStart = getIsoDaysAgo(29);
  const twentyFourHoursAgoIso = new Date(now - 24 * 60 * 60 * 1000).toISOString();
 
  const [
  visitsResult,
+ allVisitsResult,
  presenceResult,
  todayPv,
  weekPv,
  monthPv,
+ totalPv,
  ] = await Promise.all([
  supabaseAdmin
  .from("private_chat_site_visits")
  .select(
  "visitor_id,session_id,account_id,chat_user_id,user_name,path,page_title,source,created_at"
  )
- .gte("created_at", sevenDaysStart)
+ .gte("created_at", thirtyDaysStart)
+ .order("created_at", { ascending: false })
+ .limit(50000),
+ supabaseAdmin
+ .from("private_chat_site_visits")
+ .select("visitor_id,session_id,chat_user_id,created_at")
  .order("created_at", { ascending: false })
  .limit(50000),
  supabaseAdmin
@@ -743,10 +751,15 @@ async function getSiteTrafficStats() {
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
  (query as any).gte("created_at", monthStart)
  ),
+ countRows("private_chat_site_visits"),
  ]);
 
  if (visitsResult.error) {
  console.error("Read private_chat_site_visits error:", visitsResult.error);
+ }
+
+ if (allVisitsResult.error) {
+ console.error("Read all private_chat_site_visits error:", allVisitsResult.error);
  }
 
  if (presenceResult.error) {
@@ -757,6 +770,10 @@ async function getSiteTrafficStats() {
  (row) => Boolean(row.created_at)
  );
 
+ const allVisits = ((allVisitsResult.data || []) as SiteVisitRow[]).filter(
+ (row) => Boolean(row.created_at)
+ );
+
  const presence = ((presenceResult.data || []) as SitePresenceRow[]).filter(
  (row) => Boolean(row.updated_at || row.last_seen_at)
  );
@@ -764,16 +781,21 @@ async function getSiteTrafficStats() {
  const todayVisitors = new Set<string>();
  const weekVisitors = new Set<string>();
  const monthVisitors = new Set<string>();
+ const totalVisitors = new Set<string>();
 
  const todaySessions = new Set<string>();
  const weekSessions = new Set<string>();
  const monthSessions = new Set<string>();
+ const totalSessions = new Set<string>();
 
  const sourceCountMap = new Map<string, number>();
  const pathCountMap = new Map<string, number>();
 
- const dailyPvMap = new Map<string, number>();
- const dailyUvMap = new Map<string, Set<string>>();
+ const weeklyPvMap = new Map<string, number>();
+ const weeklyUvMap = new Map<string, Set<string>>();
+
+ const monthlyPvMap = new Map<string, number>();
+ const monthlyUvMap = new Map<string, Set<string>>();
 
  const hourlyPvMap = new Map<string, number>();
  const hourlyUvMap = new Map<string, Set<string>>();
@@ -784,8 +806,18 @@ async function getSiteTrafficStats() {
  date.setHours(0, 0, 0, 0);
 
  const label = getDateLabel(date);
- dailyPvMap.set(label, 0);
- dailyUvMap.set(label, new Set<string>());
+ weeklyPvMap.set(label, 0);
+ weeklyUvMap.set(label, new Set<string>());
+ }
+
+ for (let index = 29; index >= 0; index -= 1) {
+ const date = new Date();
+ date.setDate(date.getDate() - index);
+ date.setHours(0, 0, 0, 0);
+
+ const label = getDateLabel(date);
+ monthlyPvMap.set(label, 0);
+ monthlyUvMap.set(label, new Set<string>());
  }
 
  for (let index = 23; index >= 0; index -= 1) {
@@ -796,6 +828,14 @@ async function getSiteTrafficStats() {
  hourlyPvMap.set(label, 0);
  hourlyUvMap.set(label, new Set<string>());
  }
+
+ allVisits.forEach((row) => {
+ const visitorId = getSafeVisitorId(row);
+ const sessionId = getSafeSessionId(row);
+
+ if (visitorId) totalVisitors.add(visitorId);
+ if (sessionId) totalSessions.add(sessionId);
+ });
 
  visits.forEach((row) => {
  const createdAt = row.created_at || "";
@@ -829,11 +869,24 @@ async function getSiteTrafficStats() {
  const date = new Date(createdAt);
  const label = getDateLabel(date);
 
- if (dailyPvMap.has(label)) {
- dailyPvMap.set(label, (dailyPvMap.get(label) || 0) + 1);
+ if (weeklyPvMap.has(label)) {
+ weeklyPvMap.set(label, (weeklyPvMap.get(label) || 0) + 1);
 
  if (visitorId) {
- addToSet(dailyUvMap, label, visitorId);
+ addToSet(weeklyUvMap, label, visitorId);
+ }
+ }
+ }
+
+ if (createdAt >= thirtyDaysStart) {
+ const date = new Date(createdAt);
+ const label = getDateLabel(date);
+
+ if (monthlyPvMap.has(label)) {
+ monthlyPvMap.set(label, (monthlyPvMap.get(label) || 0) + 1);
+
+ if (visitorId) {
+ addToSet(monthlyUvMap, label, visitorId);
  }
  }
  }
@@ -897,17 +950,49 @@ async function getSiteTrafficStats() {
  .sort((a, b) => b.count - a.count)
  .slice(0, 8);
 
- const dailyVisits = Array.from(dailyPvMap.entries()).map(([date, pv]) => ({
- date,
- pv,
- uv: dailyUvMap.get(date)?.size || 0,
- }));
+ const dailyVisits = Array.from(weeklyPvMap.entries()).map(([date, pv]) => {
+ const uv = weeklyUvMap.get(date)?.size || 0;
 
- const hourlyVisits = Array.from(hourlyPvMap.entries()).map(([hour, pv]) => ({
- hour,
+ return {
+ date,
+ label: date,
  pv,
- uv: hourlyUvMap.get(hour)?.size || 0,
- }));
+ uv,
+ visits: pv,
+ uniqueVisitors: uv,
+ pageViews: pv,
+ };
+ });
+
+ const monthlyDailyVisits = Array.from(monthlyPvMap.entries()).map(
+ ([date, pv]) => {
+ const uv = monthlyUvMap.get(date)?.size || 0;
+
+ return {
+ date,
+ label: date,
+ pv,
+ uv,
+ visits: pv,
+ uniqueVisitors: uv,
+ pageViews: pv,
+ };
+ }
+ );
+
+ const hourlyVisits = Array.from(hourlyPvMap.entries()).map(([hour, pv]) => {
+ const uv = hourlyUvMap.get(hour)?.size || 0;
+
+ return {
+ hour,
+ label: hour,
+ pv,
+ uv,
+ visits: pv,
+ uniqueVisitors: uv,
+ pageViews: pv,
+ };
+ });
 
  return {
  source: "private_chat_site_visits + private_chat_site_presence",
@@ -915,6 +1000,8 @@ async function getSiteTrafficStats() {
  onlineNow: onlineSessionIds.size,
  activeFiveMinuteSessions: activeFiveMinuteSessionIds.size,
  activeFiveMinuteVisitors: activeFiveMinuteVisitorIds.size,
+ recentPresenceCount: activeFiveMinuteSessionIds.size,
+ activePresenceCount: activeFiveMinuteSessionIds.size,
 
  todayPv,
  todayUv: todayVisitors.size,
@@ -928,12 +1015,36 @@ async function getSiteTrafficStats() {
  monthUv: monthVisitors.size,
  monthSessions: monthSessions.size,
 
+ totalPv,
+ totalUv: totalVisitors.size,
+ totalSessions: totalSessions.size,
+
+ todayVisits: todayPv,
+ todayUniqueVisitors: todayVisitors.size,
+ todayPageViews: todayPv,
+
+ weekVisits: weekPv,
+ weekUniqueVisitors: weekVisitors.size,
+ weekPageViews: weekPv,
+
+ monthVisits: monthPv,
+ monthUniqueVisitors: monthVisitors.size,
+ monthPageViews: monthPv,
+
+ totalVisits: totalPv,
+ totalUniqueVisitors: totalVisitors.size,
+ totalPageViews: totalPv,
+
  dailyVisits,
+ recentDailyVisits: dailyVisits,
+ dailyTrend: dailyVisits,
  hourlyVisits,
+ monthlyDailyVisits,
  topSources,
  topPaths,
 
  visitsReadable: !visitsResult.error,
+ allVisitsReadable: !allVisitsResult.error,
  presenceReadable: !presenceResult.error,
  };
 }

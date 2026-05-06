@@ -308,6 +308,8 @@ type OwnerTrafficStats = {
   totalPageViews: number;
   recentPresenceCount?: number;
   recentDailyVisits?: OwnerTrafficDailyVisit[];
+  hourlyVisits?: OwnerTrafficDailyVisit[];
+  monthlyDailyVisits?: OwnerTrafficDailyVisit[];
   dailyTrend?: OwnerTrafficTrendPoint[];
   source?: string;
 };
@@ -957,88 +959,505 @@ function parseOwnerTrafficTrend(value: unknown): OwnerTrafficTrendPoint[] {
 function parseOwnerTrafficStats(value: unknown): OwnerTrafficStats {
   const empty = createEmptyOwnerTrafficStats();
 
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== "object") {
     return empty;
   }
 
   const traffic = value as Record<string, unknown>;
+
+  const recentDailyVisits = readOwnerTrafficDailyVisits(
+    traffic.recentDailyVisits ||
+      traffic.dailyVisits ||
+      traffic.dailyTrend ||
+      traffic.trend ||
+      traffic.last7Days ||
+      traffic.dailyStats
+  );
+
+  const hourlyVisits = readOwnerTrafficDailyVisits(
+    traffic.hourlyVisits || traffic.recentHourlyVisits || traffic.hourlyTrend
+  );
+
+  const monthlyDailyVisits = readOwnerTrafficDailyVisits(
+    traffic.monthlyDailyVisits ||
+      traffic.last30Days ||
+      traffic.monthTrend ||
+      traffic.monthlyTrend
+  );
+
   const dailyTrend = parseOwnerTrafficTrend(
-    traffic.dailyTrend || traffic.trend || traffic.last7Days || traffic.dailyStats
+    traffic.dailyTrend ||
+      traffic.trend ||
+      traffic.last7Days ||
+      traffic.dailyStats ||
+      traffic.recentDailyVisits ||
+      traffic.dailyVisits
   );
 
   return {
     onlineNow: readNumberByKeys(traffic, [
-      'onlineNow',
-      'onlineUserCount',
-      'onlineUsers',
-      'activePresenceCount',
-      'currentOnline',
+      "onlineNow",
+      "onlineUserCount",
+      "onlineUsers",
+      "activePresenceCount",
+      "currentOnline",
     ]),
+
     todayVisits: readNumberByKeys(traffic, [
-      'todayVisits',
-      'todayVisitCount',
-      'visitsToday',
-      'todayTotalVisits',
+      "todayVisits",
+      "todayVisitCount",
+      "visitsToday",
+      "todayTotalVisits",
+      "todayPageViews",
+      "todayPageViewCount",
     ]),
+
     todayUniqueVisitors: readNumberByKeys(traffic, [
-      'todayUniqueVisitors',
-      'todayVisitorCount',
-      'uniqueVisitorsToday',
+      "todayUniqueVisitors",
+      "todayVisitorCount",
+      "uniqueVisitorsToday",
+      "todayUniqueVisitorCount",
     ]),
+
     todayPageViews: readNumberByKeys(traffic, [
-      'todayPageViews',
-      'todayPageViewCount',
-      'pageViewsToday',
+      "todayPageViews",
+      "todayPageViewCount",
+      "pageViewsToday",
+      "todayVisits",
     ]),
+
     weekVisits: readNumberByKeys(traffic, [
-      'weekVisits',
-      'weeklyVisits',
-      'last7DaysVisits',
+      "weekVisits",
+      "weeklyVisits",
+      "last7DaysVisits",
+      "weekPageViews",
+      "weeklyPageViews",
     ]),
+
     weekUniqueVisitors: readNumberByKeys(traffic, [
-      'weekUniqueVisitors',
-      'weeklyUniqueVisitors',
-      'last7DaysUniqueVisitors',
+      "weekUniqueVisitors",
+      "weeklyUniqueVisitors",
+      "last7DaysUniqueVisitors",
+      "weekUniqueVisitorCount",
     ]),
+
     weekPageViews: readNumberByKeys(traffic, [
-      'weekPageViews',
-      'weeklyPageViews',
-      'last7DaysPageViews',
+      "weekPageViews",
+      "weeklyPageViews",
+      "last7DaysPageViews",
+      "weekVisits",
     ]),
+
     monthVisits: readNumberByKeys(traffic, [
-      'monthVisits',
-      'monthlyVisits',
-      'currentMonthVisits',
+      "monthVisits",
+      "monthlyVisits",
+      "currentMonthVisits",
+      "monthPageViews",
+      "monthlyPageViews",
     ]),
+
     monthUniqueVisitors: readNumberByKeys(traffic, [
-      'monthUniqueVisitors',
-      'monthlyUniqueVisitors',
-      'currentMonthUniqueVisitors',
+      "monthUniqueVisitors",
+      "monthlyUniqueVisitors",
+      "currentMonthUniqueVisitors",
+      "monthUniqueVisitorCount",
     ]),
+
     monthPageViews: readNumberByKeys(traffic, [
-      'monthPageViews',
-      'monthlyPageViews',
-      'currentMonthPageViews',
+      "monthPageViews",
+      "monthlyPageViews",
+      "currentMonthPageViews",
+      "monthVisits",
     ]),
+
     totalVisits: readNumberByKeys(traffic, [
-      'totalVisits',
-      'totalVisitCount',
-      'allVisits',
+      "totalVisits",
+      "totalVisitCount",
+      "allVisits",
+      "totalPageViews",
+      "totalPageViewCount",
     ]),
+
     totalUniqueVisitors: readNumberByKeys(traffic, [
-      'totalUniqueVisitors',
-      'totalVisitorCount',
-      'allUniqueVisitors',
+      "totalUniqueVisitors",
+      "totalVisitorCount",
+      "allUniqueVisitors",
+      "uniqueVisitorCount",
     ]),
+
     totalPageViews: readNumberByKeys(traffic, [
-      'totalPageViews',
-      'totalPageViewCount',
-      'allPageViews',
+      "totalPageViews",
+      "totalPageViewCount",
+      "allPageViews",
+      "totalVisits",
     ]),
+
+    recentPresenceCount: readNumberByKeys(traffic, [
+      "recentPresenceCount",
+      "activePresenceCount",
+      "onlineNow",
+      "onlineUsers",
+    ]),
+
+    recentDailyVisits,
+    hourlyVisits,
+    monthlyDailyVisits,
     dailyTrend,
-    source: String(traffic.source || 'private_chat_site_visits / private_chat_site_presence'),
+
+    source: String(
+      traffic.source || "private_chat_site_visits / private_chat_site_presence"
+    ),
   };
 }
+
+function readTrafficChartRows(value: unknown): Array<{
+  label: string;
+  visits: number;
+  uniqueVisitors: number;
+}> {
+  if (!Array.isArray(value)) return [];
+
+  return value.map((item, index) => {
+    const row =
+      item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+
+    const rawLabel =
+      typeof row.hour === "string"
+        ? row.hour
+        : typeof row.date === "string"
+          ? row.date
+          : typeof row.label === "string"
+            ? row.label
+            : "";
+
+    const visits = readNumberByKeys(row, ["visits", "pv", "pageViews", "views"]);
+    const uniqueVisitors = readNumberByKeys(row, [
+      "uniqueVisitors",
+      "uv",
+      "visitorCount",
+      "visitors",
+    ]);
+
+    const label = rawLabel || "第 " + (index + 1) + " 项";
+
+    return {
+      label,
+      visits,
+      uniqueVisitors,
+    };
+  });
+}
+
+function formatTrafficChartLabel(label: string, range: "day" | "week" | "month") {
+  if (!label) return "";
+
+  if (range === "day") {
+    return label.slice(-5);
+  }
+
+  if (label.length >= 10) {
+    return label.slice(5);
+  }
+
+  return label;
+}
+
+function buildSmoothPath(
+  points: Array<{ x: number; y: number }>,
+  width: number,
+  height: number
+) {
+  if (points.length === 0) {
+    return {
+      linePath: "",
+      areaPath: "",
+    };
+  }
+
+  if (points.length === 1) {
+    const point = points[0];
+
+    return {
+      linePath: `M ${point.x} ${point.y}`,
+      areaPath: `M ${point.x} ${height} L ${point.x} ${point.y} L ${point.x} ${height} Z`,
+    };
+  }
+
+  let linePath = `M ${points[0].x} ${points[0].y}`;
+
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const current = points[index];
+    const next = points[index + 1];
+    const controlX = (current.x + next.x) / 2;
+
+    linePath += ` C ${controlX} ${current.y}, ${controlX} ${next.y}, ${next.x} ${next.y}`;
+  }
+
+  const lastPoint = points[points.length - 1];
+  const firstPoint = points[0];
+  const areaPath = `${linePath} L ${lastPoint.x} ${height} L ${firstPoint.x} ${height} Z`;
+
+  return {
+    linePath,
+    areaPath,
+  };
+}
+
+function TrafficTrendChart({
+  traffic,
+}: {
+  traffic?: OwnerTrafficStats | null;
+}) {
+  const [range, setRange] = useState<"day" | "week" | "month">("week");
+
+  const points =
+    range === "day"
+      ? readTrafficChartRows(traffic?.hourlyVisits)
+      : range === "month"
+        ? readTrafficChartRows(traffic?.monthlyDailyVisits)
+        : readTrafficChartRows(traffic?.recentDailyVisits);
+
+  const totalVisits =
+    range === "day"
+      ? traffic?.todayVisits || 0
+      : range === "month"
+        ? traffic?.monthVisits || 0
+        : traffic?.weekVisits || 0;
+
+  const totalUniqueVisitors =
+    range === "day"
+      ? traffic?.todayUniqueVisitors || 0
+      : range === "month"
+        ? traffic?.monthUniqueVisitors || 0
+        : traffic?.weekUniqueVisitors || 0;
+
+  const maxVisits = Math.max(1, ...points.map((item) => item.visits));
+  const peakVisits = Math.max(0, ...points.map((item) => item.visits));
+  const averageVisits = points.length > 0 ? totalVisits / points.length : 0;
+
+  const chartWidth = 760;
+  const chartHeight = 240;
+  const chartPaddingX = 18;
+  const chartPaddingTop = 18;
+  const chartPaddingBottom = 34;
+  const usableWidth = chartWidth - chartPaddingX * 2;
+  const usableHeight = chartHeight - chartPaddingTop - chartPaddingBottom;
+
+  const chartPoints = points.map((item, index) => {
+    const x =
+      points.length <= 1
+        ? chartPaddingX + usableWidth / 2
+        : chartPaddingX + (usableWidth / (points.length - 1)) * index;
+
+    const y =
+      chartPaddingTop +
+      usableHeight -
+      (item.visits / maxVisits) * usableHeight;
+
+    return {
+      ...item,
+      x,
+      y,
+    };
+  });
+
+  const { linePath, areaPath } = buildSmoothPath(
+    chartPoints.map((item) => ({ x: item.x, y: item.y })),
+    chartWidth,
+    chartHeight - chartPaddingBottom
+  );
+
+  if (points.length === 0) {
+    return (
+      <div className="rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-3 text-center text-[11px] leading-5 text-slate-400">
+        暂无访问趋势数据。打开 /private-chat 或 /private-chat/private 后，
+        系统会逐步写入访问记录。
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-base font-semibold text-white">最近访问趋势</p>
+          <p className="mt-1 text-[11px] leading-5 text-slate-400">
+            可切换查看 1 天 / 1 周 / 1 月的访问量曲线趋势图。
+          </p>
+        </div>
+
+        <div className="inline-flex rounded-2xl border border-white/10 bg-slate-950/45 p-1">
+          {[
+            { key: "day" as const, label: "1天" },
+            { key: "week" as const, label: "1周" },
+            { key: "month" as const, label: "1月" },
+          ].map((item) => {
+            const isActive = range === item.key;
+
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setRange(item.key)}
+                className={
+                  "rounded-xl px-3 py-1.5 text-[11px] transition " +
+                  (isActive
+                    ? "bg-purple-500 text-white shadow-lg shadow-purple-950/35"
+                    : "text-slate-400 hover:bg-white/10 hover:text-white")
+                }
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <MiniInfoCard
+          label="区间访问量"
+          value={formatNumber(totalVisits)}
+          valueClassName="text-purple-100"
+          desc={range === "day" ? "最近 24 小时" : range === "week" ? "最近 7 天" : "最近 30 天"}
+        />
+
+        <MiniInfoCard
+          label="独立访客"
+          value={formatNumber(totalUniqueVisitors)}
+          valueClassName="text-cyan-100"
+          desc="按 visitor_id 去重"
+        />
+
+        <MiniInfoCard
+          label="峰值访问"
+          value={formatNumber(peakVisits)}
+          valueClassName="text-emerald-100"
+          desc="单个时间点最高访问量"
+        />
+
+        <MiniInfoCard
+          label="平均访问"
+          value={averageVisits.toFixed(1)}
+          valueClassName="text-amber-100"
+          desc="当前区间平均值"
+        />
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(124,58,237,0.10),rgba(15,23,42,0.45))] p-3">
+        <svg
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          className="h-[260px] w-full"
+          aria-label="访问趋势曲线图"
+          role="img"
+        >
+          <defs>
+            <linearGradient id="trafficAreaGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="rgba(192,132,252,0.45)" />
+              <stop offset="100%" stopColor="rgba(192,132,252,0.04)" />
+            </linearGradient>
+          </defs>
+
+          {[0, 1, 2, 3, 4].map((step) => {
+            const y =
+              chartPaddingTop + (usableHeight / 4) * step;
+
+            return (
+              <line
+                key={step}
+                x1={chartPaddingX}
+                x2={chartWidth - chartPaddingX}
+                y1={y}
+                y2={y}
+                stroke="rgba(255,255,255,0.08)"
+                strokeDasharray="4 6"
+              />
+            );
+          })}
+
+          {areaPath ? (
+            <path
+              d={areaPath}
+              fill="url(#trafficAreaGradient)"
+              stroke="none"
+            />
+          ) : null}
+
+          {linePath ? (
+            <path
+              d={linePath}
+              fill="none"
+              stroke="rgb(196, 132, 252)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ) : null}
+
+          {chartPoints.map((item, index) => (
+            <g key={item.label + "-" + index}>
+              <circle
+                cx={item.x}
+                cy={item.y}
+                r="4"
+                fill="rgb(232, 213, 255)"
+                stroke="rgb(196, 132, 252)"
+                strokeWidth="2"
+              />
+              <text
+                x={item.x}
+                y={item.y - 10}
+                textAnchor="middle"
+                fontSize="10"
+                fill="rgba(255,255,255,0.72)"
+              >
+                {item.visits}
+              </text>
+            </g>
+          ))}
+
+          {chartPoints.map((item, index) => (
+            <text
+              key={"label-" + item.label + "-" + index}
+              x={item.x}
+              y={chartHeight - 8}
+              textAnchor="middle"
+              fontSize="10"
+              fill="rgba(255,255,255,0.6)"
+            >
+              {formatTrafficChartLabel(item.label, range)}
+            </text>
+          ))}
+        </svg>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-3">
+        {chartPoints
+          .filter((_, index) => {
+            if (range === "day") {
+              return index % 6 === 0 || index === chartPoints.length - 1;
+            }
+
+            if (range === "month") {
+              return index % 5 === 0 || index === chartPoints.length - 1;
+            }
+
+            return true;
+          })
+          .map((item, index) => (
+            <div
+              key={"summary-" + item.label + "-" + index}
+              className="rounded-2xl border border-white/10 bg-slate-950/30 px-3 py-2 text-[11px] text-slate-300"
+            >
+              <span className="text-slate-400">{item.label}</span>
+              <span className="ml-2">访问 {formatNumber(item.visits)}</span>
+              <span className="ml-2">独立访客 {formatNumber(item.uniqueVisitors)}</span>
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+}
+
 
 function ProgressBar({ value, limit }: { value: number; limit: number }) {
   const percent =
@@ -1847,7 +2266,7 @@ export default function PrivateChatAccountCenterPanel() {
         publicMessageCount: readNumber(messages.publicMessageCount),
         privateMessageCount: readNumber(messages.privateMessageCount),
         todayMessageCount: readNumber(messages.todayTotalMessageCount),
-        traffic: readOwnerTrafficStats(ownerStatsResult.data?.traffic),
+        traffic: parseOwnerTrafficStats(ownerStatsResult.data?.traffic),
       });
     } catch {
       if (!mountedRef.current) return;
@@ -3700,63 +4119,9 @@ export default function PrivateChatAccountCenterPanel() {
               />
             </div>
 
-            {Array.isArray(ownerStats.traffic?.recentDailyVisits) &&
-            ownerStats.traffic.recentDailyVisits.length > 0 ? (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-base font-semibold text-white">最近访问趋势</p>
-                    <p className="mt-1 text-[11px] leading-5 text-slate-400">
-                      近几天访问量变化趋势。
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {ownerStats.traffic.recentDailyVisits.map((item, index) => {
-                    const visits = Number(item?.visits || 0);
-                    const uniqueVisitors = Number(item?.uniqueVisitors || 0);
-                    const dailyVisits = Array.isArray(
-                      ownerStats.traffic?.recentDailyVisits
-                    )
-                      ? ownerStats.traffic.recentDailyVisits
-                      : [];
-                    const maxVisits = Math.max(
-                      1,
-                      ...dailyVisits.map((row) => Number(row?.visits || 0))
-                    );
-                    const width =
-                      String(Math.max(6, (visits / maxVisits) * 100)) + "%";
-
-                    return (
-                      <div key={item?.date || index}>
-                        <div className="mb-1 flex items-center justify-between gap-3 text-[11px]">
-                          <span className="text-slate-300">
-                            {item?.label || item?.date || "第 " + (index + 1) + " 天"}
-                          </span>
-                          <span className="text-slate-400">
-                            访问 {formatNumber(visits)} · 独立访客{" "}
-                            {formatNumber(uniqueVisitors)}
-                          </span>
-                        </div>
-
-                        <div className="h-2 overflow-hidden rounded-full bg-white/20">
-                          <div
-                            className="h-full rounded-full bg-purple-400"
-                            style={{ width }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-3 text-center text-[11px] leading-5 text-slate-400">
-                暂无访问趋势数据。打开 /private-chat 或 /private-chat/private 后，
-                系统会逐步写入访问记录。
-              </div>
-            )}
+                        <div className="mt-4">
+              <TrafficTrendChart traffic={ownerStats.traffic} />
+            </div>
           </div>
         </SectionCard>
       ) : null}

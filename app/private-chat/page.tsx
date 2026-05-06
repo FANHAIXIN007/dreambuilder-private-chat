@@ -2923,14 +2923,7 @@ export default function PrivateChatLobbyPage() {
  <PrivateChatLoginPanel
  onSessionChanged={handleLoginSessionChanged}
  />
-
- <Link
- href="/private-chat/account"
- className="block w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-center text-xs text-slate-200 transition hover:bg-white/10"
- >
- 进入统一账号中心
- </Link>
- </div>
+</div>
  )}
 
  {isAdmin ? adminPanel : null}
@@ -3328,48 +3321,6 @@ export default function PrivateChatLobbyPage() {
  </aside>
 
  <section className="flex h-full min-h-0 flex-col overflow-hidden">
- <div className="shrink-0 border-b border-white/10 bg-slate-950/50 px-3 py-3 sm:px-6 sm:py-4">
- <div className="flex items-center justify-between gap-3">
- <div className="min-w-0">
- <h2 className="truncate text-base font-semibold text-white sm:text-lg">
- 公共大厅
- </h2>
-
- <p className="mt-1 truncate text-xs leading-5 text-slate-400">
- {publicChatPaused
- ? "聊天室已暂停发言"
- : "点击成员头像可私聊，也可进入暗语房间"}
- </p>
- </div>
-
- <div className="flex shrink-0 items-center gap-2">
- {totalPrivateUnread > 0 ? (
- <span className="rounded-full bg-rose-500/20 px-3 py-2 text-xs text-rose-100">
- 私聊 {totalPrivateUnread}
- </span>
- ) : null}
-
- {isAdmin ? (
- <span className="rounded-full bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
- {isOwner ? "owner" : "管理员"}
- </span>
- ) : null}
-
- <span className="rounded-full bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200">
- 在线 {onlineUsers.length}
- </span>
-
- <button
- type="button"
- onClick={() => setMobileInfoOpen(true)}
- className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-slate-200 transition hover:bg-white/10 lg:hidden"
- >
- 大厅信息
- </button>
- </div>
- </div>
- </div>
-
  {activeAnnouncement ? (
  <div className="shrink-0 border-b border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-50 sm:px-6">
  <span className="font-semibold">公告：</span>
