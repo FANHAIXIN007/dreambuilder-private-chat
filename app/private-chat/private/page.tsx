@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PrivateChatShell from "../components/PrivateChatShell";
 import { privateChatSupabase } from "../lib/supabaseClient";
@@ -590,7 +590,7 @@ function getEntitlementShortText(entitlement: MediaEntitlement) {
  return `可发媒体 · ${formatMediaSize(entitlement.monthlyTrafficLimitBytes)}/月`;
 }
 
-export default function PrivateChatPage() {
+function PrivateChatPageContent() {
  const searchParams = useSearchParams();
  const listRef = useRef<HTMLDivElement | null>(null);
  const mediaInputRef = useRef<HTMLInputElement | null>(null);
@@ -2252,4 +2252,13 @@ export default function PrivateChatPage() {
  </div>
  </PrivateChatShell>
  );
+}
+
+
+export default function PrivateChatPage() {
+  return (
+    <Suspense fallback={null}>
+      <PrivateChatPageContent />
+    </Suspense>
+  );
 }

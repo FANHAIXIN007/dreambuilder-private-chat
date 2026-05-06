@@ -303,7 +303,7 @@ export default function GeneratedPreview({
 
  setBuildMessageType("success");
  setBuildMessage(
- result?.message ||
+ (result && "message" in result ? result.message : null) ||
  (language === "zh"
  ? "房屋已建成，请前往“我的房产”或对应地块查看。"
  : "Your house has been built. Please check it in My Properties or the plot page.")

@@ -464,6 +464,7 @@ export default function ConnectWalletButton({
  `Issued At: ${issuedAt}`;
 
  const signature = await signMessageAsync({
+ account: address,
  message: preparedMessage,
  });
 

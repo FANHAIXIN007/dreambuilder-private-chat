@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -110,7 +110,7 @@ export default function BuyLotWithUsdtButton({
  buyNow: "用 USDT 购买",
  bought: "已购买",
  switching: "切换中...",
- switchToBsc: "请先切到 BSC",
+ switchToBsc: "请先切换到 BSC",
  paying: "等待钱包确认...",
  confirming: "链上确认中...",
  success: "支付成功，地块已归属到你的账户。",
@@ -253,6 +253,8 @@ export default function BuyLotWithUsdtButton({
  setStatusMessage(text.paying);
 
  const hash = await writeContractAsync({
+ account: address,
+ chain: bsc,
  address: BSC_USDT_ADDRESS as `0x${string}`,
  abi: erc20Abi,
  functionName: "transfer",

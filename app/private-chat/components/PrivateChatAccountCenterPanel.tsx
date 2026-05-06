@@ -913,7 +913,7 @@ function readNumberByKeys(source: Record<string, unknown>, keys: string[]) {
 
 function parseOwnerTrafficTrend(value: unknown): OwnerTrafficTrendPoint[] {
   if (!Array.isArray(value)) {
-    return createEmptyOwnerTrafficStats().dailyTrend;
+    return createEmptyOwnerTrafficStats().dailyTrend || [];
   }
 
   const list = value.slice(-7).map((item, index) => {
