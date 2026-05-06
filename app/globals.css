@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+
+/* Dark scrollbar for private chat */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.55) rgba(15, 23, 42, 0.85);
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.55);
+  border-radius: 999px;
+  border: 2px solid rgba(15, 23, 42, 0.85);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 213, 225, 0.75);
+}
+
+
+/* Unified clickable cursor */
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+label[for],
+.cursor-pointer {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+[aria-disabled="true"],
+.disabled,
+.cursor-not-allowed {
+  cursor: not-allowed;
+}\n
+/* Global small font readability upgrade */
+.text-\[10px\] {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+
+.text-\[11px\] {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.text-xs {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.text-sm {
+  font-size: 15.5px !important;
+  line-height: 1.7 !important;
+}
+
+button.text-xs,
+button.text-sm,
+a.text-xs,
+a.text-sm {
+  font-size: 14.5px !important;
+}
